@@ -3,9 +3,9 @@ var tool = null;
 
 var Actor_num = 0;
 class Actor extends CanvasTool.Graphic {
-    constructor(x, y) {
-        var id = Actor_num++;
-        super(id, x, y);
+    constructor(opts) {
+        opts.id = opts.id || Actor_num++;
+        super(opts);
         this.vx = 0;
         this.vy = 0;
         this.radius = 5;
@@ -54,9 +54,9 @@ class Actor extends CanvasTool.Graphic {
 }
 
 class Interaction extends CanvasTool.Graphic {
-    constructor(id, ids) {
-        super(id, 0, 0);
-        this.ids = ids;
+    constructor(opts) {
+        super(opts);
+        this.ids = opts.ids;
         this.lineWidth = 2;
         this.startGen = tool.stepNum;
     }
@@ -100,10 +100,10 @@ class Interaction extends CanvasTool.Graphic {
 }
 
 class Link extends CanvasTool.Graphic {
-    constructor(id, id1, id2) {
-        super(id, 0, 0);
-        this.id1 = id1;
-        this.id2 = id2;
+    constructor(opts) {
+        super(opts);
+        this.id1 = opts.id1;
+        this.id2 = opts.id2;
     }
 
     draw(canvas, ctx) {
@@ -150,13 +150,13 @@ class RAKTool extends CanvasTool {
     }
 
     add(x, y, id) {
-         var actor = new Actor(x, y);
+         var actor = new Actor({x, y});
         this.actors[actor.id] = actor;
         this.addGraphic(actor);
     }
 
     addLink(id1, id2) {
-        var link = new Link("link"+this.numLinks++, id1, id2);
+        var link = new Link({id: "link"+this.numLinks++, id1, id2});
         this.links[[id1,id2]] = link;
         this.addGraphic(link);
     }
@@ -191,7 +191,7 @@ class RAKTool extends CanvasTool {
     }
 
     initInteractions() {
-        var int1 = new Interaction("i1", [0,1,2,3]);
+        var int1 = new Interaction({id: "i1", ids: [0,1,2,3]});
         this.interactions["i1"] = int1;
         this.addGraphic(int1);
     }

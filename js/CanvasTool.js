@@ -309,11 +309,17 @@ class CanvasTool {
 
 }
 
+var _graphicNum = 0;
+function getUniqueId() {
+    return "_gr"+_graphicNum++;
+}
+
 CanvasTool.Graphic = class {
-    constructor(id, x, y) {
-        this.id = id;
-        this.x = x;
-        this.y = y;
+    constructor(opts) {
+        opts = opts || {};
+        this.id = opts.id || getUniqueId(this);
+        this.x = opts.x || 0;
+        this.y = opts.y || 0;
         this.lineWidth = .01;
         this.strokeStyle = '#000';
         this.fillStyle = '#900';
@@ -375,9 +381,9 @@ CanvasTool.Graphic = class {
 }
 
 CanvasTool.IconGraphic = class extends CanvasTool.Graphic {
-    constructor(id, iconName, x, y) {
-        super(id, x, y);
-        this.iconName = iconName;
+    constructor(opts) {
+        super(opts);
+        this.iconName = opts.iconName;
         this.icon = document.getElementById(iconName);
         if (!this.icon) {
             alert("Unable to get icon " + iconName);
@@ -396,9 +402,9 @@ CanvasTool.IconGraphic = class extends CanvasTool.Graphic {
 }
 
 CanvasTool.CloudGraphic = class extends CanvasTool.Graphic {
-    constructor(id, x, y, r) {
-        super(id,x, y);
-        this.r = r || .2;
+    constructor(opts) {
+        super(opts);
+        this.r = opts.r || .2;
         this.a0 = .2;
         this.a1 = 0;
         this.rgb = [200,0,0];
@@ -433,13 +439,14 @@ CanvasTool.CloudGraphic = class extends CanvasTool.Graphic {
 }
 
 CanvasTool.GraphGraphic = class extends CanvasTool.Graphic {
-    constructor(id, x, y, width, height, maxNumPoints) {
-        super(id,x, y);
-        this.width = width || 10;
-        this.height = height || 10;
-        this.rgb = [200,0,0];
+    //constructor(id, x, y, width, height, maxNumPoints) {
+    constructor(opts) {
+        super(opts);
+        this.width = opts.width || 10;
+        this.height = opts.height || 10;
+        this.rgb = opts.rgb || [200,0,0];
         this.yvals = [];
-        this.maxNumPoints = maxNumPoints || 100;
+        this.maxNumPoints = opts.maxNumPoints || 100;
         for (var i=0; i<200; i++) {
             var t = 0.1*i;
             var w = 3;
@@ -448,7 +455,7 @@ CanvasTool.GraphGraphic = class extends CanvasTool.Graphic {
             this.addPoint(y);
         }
         //this.lineWidth = .1;
-        this.strokeStyle = "black";
+        this.strokeStyle = opts.strokeStyle || "black";
     }
 
     addPoint(pt) {
@@ -480,13 +487,13 @@ CanvasTool.GraphGraphic = class extends CanvasTool.Graphic {
 }
 
 CanvasTool.TrailGraphic = class extends CanvasTool.Graphic {
-    constructor(id, x, y, width, height, maxNumPoints) {
-        super(id,x, y);
-        this.width = width || 10;
-        this.height = height || 10;
+    constructor(opts) {
+        super(opts);
+        this.width = opts.width || 10;
+        this.height = opts.height || 10;
         this.rgb = [200,0,0];
         this.points = [];
-        this.maxNumPoints = maxNumPoints || 100;
+        this.maxNumPoints = opts.maxNumPoints || 100;
         for (var i=0; i<200; i++) {
             var t = 0.1*i;
             var w = 3;
