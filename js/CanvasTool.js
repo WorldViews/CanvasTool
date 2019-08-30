@@ -11,7 +11,7 @@ function dist(a1,a2) {
 class CanvasTool {
     constructor(canvasName) {
         canvasName = canvasName || "canvas";
-        console.log('Creating CanvasTool', canvasName);
+        console.log('*** Creating CanvasTool', canvasName);
         this.canvas = document.getElementById(canvasName);
         if (!this.canvas) {
             alert("No canvas named " + canvasName);
