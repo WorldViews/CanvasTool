@@ -1,0 +1,6 @@
+venv/*
+*.pyc
+.vscode*
+*.bak
+*.bak/*
+
