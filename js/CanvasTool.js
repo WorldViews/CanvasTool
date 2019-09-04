@@ -314,13 +314,19 @@ function getUniqueId() {
     return "_gr"+_graphicNum++;
 }
 
+function getNumVal(v, def) {
+    if (v != null)
+        return v;
+    return def;
+}
+
 CanvasTool.Graphic = class {
     constructor(opts) {
         opts = opts || {};
         this.id = opts.id || getUniqueId(this);
         this.x = opts.x || 0;
         this.y = opts.y || 0;
-        this.lineWidth = .01;
+        this.lineWidth = getNumVal(opts.lineWidth, 0.01);
         this.strokeStyle = '#000';
         this.fillStyle = '#900';
         this.radius = .1;
@@ -486,14 +492,16 @@ CanvasTool.GraphGraphic = class extends CanvasTool.Graphic {
     }
 }
 
+
 CanvasTool.TrailGraphic = class extends CanvasTool.Graphic {
     constructor(opts) {
         super(opts);
-        this.width = opts.width || 10;
-        this.height = opts.height || 10;
-        this.rgb = [200,0,0];
-        this.points = [];
+        this.rgb = opts.rgb || [200,0,0];
+        this.points = opts.points || [];
+        this.width = getNumVal(opts.width, 10);
+        this.height = getNumVal(opts.height, 10);
         this.maxNumPoints = opts.maxNumPoints || 100;
+        /*
         for (var i=0; i<200; i++) {
             var t = 0.1*i;
             var w = 3;
@@ -501,6 +509,7 @@ CanvasTool.TrailGraphic = class extends CanvasTool.Graphic {
             var y = Math.sin(w*t);
             this.addPoint([x,y]);
         }
+        */
         //this.lineWidth = .1;
         this.strokeStyle = "black";
     }
