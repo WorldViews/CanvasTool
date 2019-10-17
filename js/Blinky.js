@@ -13,7 +13,7 @@ class Light extends CanvasTool.Graphic {
         this.vx = 0;
         this.vy = 0;
         this.radius = 5;
-        this.rgb = [100,200,30];
+        this.rgb = [100, 200, 30];
     }
 
     static reset() {
@@ -32,13 +32,13 @@ class Light extends CanvasTool.Graphic {
     adjustPosition() {
         if (0) {
             var s = 6;
-            this.x += s*(Math.random() - 0.5);
-            this.y += s*(Math.random() - 0.5);
+            this.x += s * (Math.random() - 0.5);
+            this.y += s * (Math.random() - 0.5);
         }
         else {
             var s = 1;
-            this.vx += s*(Math.random() - 0.5);
-            this.vy += s*(Math.random() - 0.5);
+            this.vx += s * (Math.random() - 0.5);
+            this.vy += s * (Math.random() - 0.5);
             this.x += this.vx;
             this.y += this.vy;
             this.vx *= .9;
@@ -48,19 +48,15 @@ class Light extends CanvasTool.Graphic {
 
     setState(rgb) {
         this.rgb = rgb;
-        var r,g,b;
-        [r,g,b] = this.rgb;
-        this.fillStyle = sprintf("rgb(%d,%d,%d)", r,g,b);
+        var r, g, b;
+        [r, g, b] = this.rgb;
+        this.fillStyle = sprintf("rgb(%d,%d,%d)", r, g, b);
     }
 
-    adjustState() {
-        var s =3;
-        for (var i=0; i<3; i++) {
-            var x = this.rgb[i];
-            this.rgb[i] = Math.floor(x + s*(Math.random())) % 256;
-        }
-        this.setState(this.rgb);
-     }
+    getState() {
+        return this.rgb.slice();
+    }
+
 }
 
 class Link extends CanvasTool.Graphic {
@@ -96,26 +92,26 @@ class Blinky extends CanvasTool {
         this.harmony = 50;
         this.run = true;
         this.grid = true;
-        this.style = "spiral"
+        this.style = "spiral";
+        this.rule = "snake";
         this.mobile = false;
         this.speed = 1;
         this.playTime = 0;
         this.prevClockTime = getClockTime();
-        this.prevStepTime = 0;
         this.setupDATGUI();
         this.initBlinky();
     }
 
-    setupDATGUI()
-    {
+    setupDATGUI() {
         var P = this;
         var gui = new dat.GUI();
         gui.add(P, 'numLights', 1, 200).onChange(() => P.reset());
         //gui.add(P, 'distThresh', 0, 200);
         gui.add(P, 'harmony', 0, 100);
         //gui.add(P, 'run');
-        gui.add(P, "speed", 0, 10);
+        gui.add(P, "speed", 0, 5);
         gui.add(P, 'style', ['grid', 'random', 'spiral']).onChange(() => P.reset());
+        gui.add(P, 'rule', ['blinky', 'uniform', 'snake']).onChange(() => P.reset());
         gui.add(P, 'reset');
     }
 
@@ -129,7 +125,7 @@ class Blinky extends CanvasTool {
     }
 
     add(x, y, id) {
-         var light = new Light({x, y});
+        var light = new Light({ x, y });
         this.lights[light.id] = light;
         this.lightVec.push(light);
         this.addGraphic(light);
@@ -137,21 +133,21 @@ class Blinky extends CanvasTool {
     }
 
     addLink(id1, id2) {
-        var link = new Link({id: "link"+this.numLinks++, id1, id2});
-        this.links[[id1,id2]] = link;
+        var link = new Link({ id: "link" + this.numLinks++, id1, id2 });
+        this.links[[id1, id2]] = link;
         this.addGraphic(link);
     }
 
     connect(id1, id2) {
-        this.links[[id1,id2]] = true;
+        this.links[[id1, id2]] = true;
     }
 
     distBetween(id1, id2) {
         var a1 = this.lights[id1];
         var a2 = this.lights[id2];
-        var dx = a1.x-a2.x;
-        var dy = a1.y-a2.y;
-        return Math.sqrt(dx*dx + dy*dy);
+        var dx = a1.x - a2.x;
+        var dy = a1.y - a2.y;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     initBlinky() {
@@ -162,7 +158,6 @@ class Blinky extends CanvasTool {
         this.numLights = Math.floor(this.numLights);
         this.playTime = 0;
         this.prevClockTime = getClockTime();
-        this.prevStepTime = -100000;
         this.stepNum = 0;
         this.numLinks = 0;
         this.lights = {};
@@ -184,7 +179,7 @@ class Blinky extends CanvasTool {
         if (style == "random") {
             return this.initRand();
         }
-        alert("Unrecognized style "+style);
+        alert("Unrecognized style " + style);
     }
 
     initSpiral() {
@@ -194,11 +189,11 @@ class Blinky extends CanvasTool {
         var a = .6;
         var b = 10;
         var prev = null;
-        for (var i=0; i < this.numLights; i++) {
-            var t = a*i;
-            var r = b*t;
-            var x = x0 + r*Math.cos(a*t);
-            var y = y0 + r*Math.sin(a*t);
+        for (var i = 0; i < this.numLights; i++) {
+            var t = a * i;
+            var r = b * t;
+            var x = x0 + r * Math.cos(a * t);
+            var y = y0 + r * Math.sin(a * t);
             var node = this.add(x, y, i);
             if (prev) {
                 this.addLink(node.id, prev.id);
@@ -217,11 +212,11 @@ class Blinky extends CanvasTool {
     addChildren(parent, level, maxLevel) {
         var x = parent.x - 30;
         var y = parent.y + 100;
-        for (var i=0; i<nChildren; i++) {
+        for (var i = 0; i < nChildren; i++) {
             var N = Math.floor(sizes[i]);
             if (this.i0 >= this.numLights)
                 return;
-            var node = this.add(x,y, this.i0);
+            var node = this.add(x, y, this.i0);
             this.connect(parent.id, node.id);
             nodes.push(node);
             x += 10;
@@ -237,21 +232,21 @@ class Blinky extends CanvasTool {
         var H = 600;
         var w = W / n;
         var h = H / n;
-        for (var i=0; i<this.numLights; i++) {
-            var j = Math.floor(i/n);
+        for (var i = 0; i < this.numLights; i++) {
+            var j = Math.floor(i / n);
             var k = i % n;
             var x = j * w;
             var y = k * h;
-            this.add(x,y,i);
+            this.add(x, y, i);
         }
     }
 
     initRand() {
         var W = 600;
         var H = 600;
-        for (var i=0; i<this.numLights; i++) {
-            var x = Math.random()*W;
-            var y = Math.random()*H;
+        for (var i = 0; i < this.numLights; i++) {
+            var x = Math.random() * W;
+            var y = Math.random() * H;
             this.add(x, y, i);
         }
     }
@@ -262,19 +257,16 @@ class Blinky extends CanvasTool {
     }
 
     adjustStates() {
-        //var lights = Object.values(this.lights);
-        var lights = this.lightVec;
-        console.log("lights:", lights);
-        console.log("numLights", this.numLights);
-        lights[this.numLights-1].adjustState();
-        //for (var i=0; i<this.numLights; i++) {
-        //    lights[i].adjustState();
-        //}
-        for (var i=0; i<this.numLights-1; i++) {
-            //lights[i].setState(lights[i+1].rgb);
-            var r,g,b;
-            [r,g,b] = lights[i+1].rgb;
-            lights[i].setState([r,g,b]);
+        var rule = this.rule;
+        var cells = this.lightVec;
+        if (rule == "snake") {
+            update_snake(cells, this.harmony, this.stepNum, this.playTime, this);
+        }
+        if (rule == "uniform") {
+            update_uniform(cells, this.harmony, this.stepNum, this.playTime, this);
+        }
+        if (rule == "blinky") {
+            update_blinky(cells, this.harmony, this.stepNum, this.playTime, this);
         }
     }
 
@@ -287,9 +279,9 @@ class Blinky extends CanvasTool {
         this.links = {};
         for (var i1 in this.lights) {
             for (var i2 in this.lights) {
-                if (this.distBetween(i1,i2) < maxDist)
-                    this.connect(i1,i2);
-           }
+                if (this.distBetween(i1, i2) < maxDist)
+                    this.connect(i1, i2);
+            }
         }
     }
 
@@ -304,7 +296,7 @@ class Blinky extends CanvasTool {
         for (var id1 in this.lights) {
             var a1 = this.lights[id1];
             for (var id2 in this.lights) {
-                if (!this.links[[id1,id2]])
+                if (!this.links[[id1, id2]])
                     continue;
                 var a2 = this.lights[id2];
                 ctx.moveTo(a1.x, a1.y);
@@ -330,17 +322,10 @@ class Blinky extends CanvasTool {
         var dt = t - this.prevClockTime;
         this.prevClockTime = t;
         this.playTime += this.speed * dt;
-        var det = this.playTime - this.prevStepTime;
-        //console.log(sprintf("pt: %7.1f det: %.1f", this.playTime, det));
-        var str = sprintf("t: %8.2f N: %3d NumLights: %3d",
-               this.playTime, this.stepNum, this.getNumLights())
-        $("#stats").html(str);
-        if (det < 1.0)
-            return;
-        this.prevStepTime = this.playTime;
-       // if (!this.run)
-       //     return;
         this.stepNum++;
+        var str = sprintf("t: %8.2f N: %3d NumLights: %3d",
+            this.playTime, this.stepNum, this.getNumLights())
+        $("#stats").html(str);
         if (this.mobile)
             this.adjustPositions();
         this.adjustStates();
@@ -358,5 +343,85 @@ class Blinky extends CanvasTool {
         let inst = this;
         setInterval(() => inst.tick(), 20);
     }
- }
+}
 
+
+
+function update_snake(cells, harmony, stepNum, t, tool) {
+
+    var n = cells.length;
+    if (stepNum % 10 != 0)
+        return;
+    /*
+    var r = Math.floor(Math.random() * 255);
+    var g = Math.floor(Math.random() * 255);
+    var b = Math.floor(Math.random() * 255);
+    cells[n - 1].setState([r, g, b]);
+    */
+    h = (0.2*t) % 1;
+    s = 0.99;
+    l = harmony/100.0;
+    console.log("h,s,l", h, s, l);
+    var rgb = hslToRgb(h,s,l);
+    cells[n-1].setState(rgb);
+    for (var i = 0; i < n - 1; i++) {
+        cells[i].setState(cells[i + 1].getState());
+    }
+}
+
+function update_uniform(cells, harmony, stepNum, t, tool) {
+    var v = Math.floor(255 * harmony / 100.00);
+    for (var i = 0; i < cells.length; i++) {
+        cells[i].setState([v, v, v]);
+    }
+}
+
+function update_blinky(cells, harmony, stepNum, t, tool) {
+    var n = cells.length;
+    var rgb;
+    var k = Math.floor(t * harmony / 15) % 2;
+    for (var i = 0; i < n; i++) {
+        if (k == 0)
+            rgb = [250, 60, 20];
+        else
+            rgb = [20, 250, 40];
+        cells[i].setState(rgb);
+    }
+}
+
+//https://stackoverflow.com/questions/2353211/hsl-to-rgb-color-conversion
+/**
+* Converts an HSL color value to RGB. Conversion formula
+* adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+* Assumes h, s, and l are contained in the set [0, 1] and
+* returns r, g, and b in the set [0, 255].
+*
+* @param   {number}  h       The hue
+* @param   {number}  s       The saturation
+* @param   {number}  l       The lightness
+* @return  {Array}           The RGB representation
+*/
+function hslToRgb(h, s, l) {
+    var r, g, b;
+
+    if (s == 0) {
+        r = g = b = l; // achromatic
+    } else {
+        var hue2rgb = function hue2rgb(p, q, t) {
+            if (t < 0) t += 1;
+            if (t > 1) t -= 1;
+            if (t < 1 / 6) return p + (q - p) * 6 * t;
+            if (t < 1 / 2) return q;
+            if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+            return p;
+        }
+
+        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        var p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1 / 3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1 / 3);
+    }
+
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
