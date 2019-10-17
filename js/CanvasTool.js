@@ -1,12 +1,5 @@
 // Class for 2D visualization for Kinect skeletons
 
-/*
-function dist(a1,a2) {
-    var dx = a2.x - a1.x;
-    var dy = a2.y - a1.y;
-    return Math.sqrt(dx*dx + dy*dy);
-}
-*/
 
 class CanvasTool {
     constructor(canvasName) {
@@ -20,6 +13,7 @@ class CanvasTool {
         //this.elements = elements;
         this.mouseDownPt = null;
         this.mouseDownTrans = null;
+        this.background = "#fff";
         this.init();
         this.setupGUIBindings();
         this.resize();
@@ -222,7 +216,9 @@ class CanvasTool {
 
         ctx.lineWidth = 5;
         ctx.strokeStyle = '#bbb';
+        ctx.fillStyle = this.background;
         ctx.strokeRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     setTransform(ctx) {
