@@ -110,13 +110,18 @@ class Blinky extends CanvasTool {
     {
         var P = this;
         var gui = new dat.GUI();
-        gui.add(P, 'numLights', 2, 1000);
-        gui.add(P, 'distThresh', 0, 200);
+        gui.add(P, 'numLights', 1, 200).onChange(() => P.reset());
+        //gui.add(P, 'distThresh', 0, 200);
         gui.add(P, 'harmony', 0, 100);
         //gui.add(P, 'run');
         gui.add(P, "speed", 0, 10);
         gui.add(P, 'style', ['grid', 'random', 'spiral']).onChange(() => P.reset());
         gui.add(P, 'reset');
+    }
+
+    update() {
+        this.reset();
+        this.tick();
     }
 
     reset() {
@@ -154,9 +159,10 @@ class Blinky extends CanvasTool {
         super.init();
         this.setView(300, 300, 800)
         Light.reset();
+        this.numLights = Math.floor(this.numLights);
         this.playTime = 0;
         this.prevClockTime = getClockTime();
-        this.prevStepTime = 0;
+        this.prevStepTime = -100000;
         this.stepNum = 0;
         this.numLinks = 0;
         this.lights = {};
@@ -258,6 +264,8 @@ class Blinky extends CanvasTool {
     adjustStates() {
         //var lights = Object.values(this.lights);
         var lights = this.lightVec;
+        console.log("lights:", lights);
+        console.log("numLights", this.numLights);
         lights[this.numLights-1].adjustState();
         //for (var i=0; i<this.numLights; i++) {
         //    lights[i].adjustState();
@@ -323,7 +331,10 @@ class Blinky extends CanvasTool {
         this.prevClockTime = t;
         this.playTime += this.speed * dt;
         var det = this.playTime - this.prevStepTime;
-        console.log(sprintf("pt: %7.1f det: %.1f", this.playTime, det));
+        //console.log(sprintf("pt: %7.1f det: %.1f", this.playTime, det));
+        var str = sprintf("t: %8.2f N: %3d NumLights: %3d",
+               this.playTime, this.stepNum, this.getNumLights())
+        $("#stats").html(str);
         if (det < 1.0)
             return;
         this.prevStepTime = this.playTime;
@@ -337,9 +348,6 @@ class Blinky extends CanvasTool {
         this.draw();
         for (var id in this.lights)
             this.lights[id].tick();
-        var str = sprintf("N: %3d NumLights: %3d",
-                this.stepNum, this.getNumLights())
-        $("#stats").html(str);
     }
 
     start() {
